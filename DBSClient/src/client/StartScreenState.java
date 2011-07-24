@@ -31,7 +31,7 @@ import org.jbox2d.dynamics.World;
 public class StartScreenState implements AppState {
 
     private Node rootNode;
-    private Application app;
+    private ClientApplication app;
     private Geometry buttonShape;
     private boolean initialized;
     private boolean active;
@@ -48,7 +48,7 @@ public class StartScreenState implements AppState {
     @Override
     public void initialize(AppStateManager stateManager, Application app) {
         //Attach stuff onto root
-        this.app = app;
+        this.app = (ClientApplication)app;
         
         Material buttonMat = new Material(app.getAssetManager(), "Common/MatDefs/Light/Lighting.j3md");
         buttonMat.setFloat("Shininess", 64);
@@ -77,8 +77,10 @@ public class StartScreenState implements AppState {
         camera.setLocation(new Vector3f(0f, 4f, -1f));
         camera.lookAt(Vector3f.ZERO, Vector3f.UNIT_Y);
         
+        Action cameraMoveAction = new CameraMoveToAction(10f, camera, new Vector3f(0f, 5f, -1f));
+        this.app.runAction(cameraMoveAction);
         
-        world = new World(new Vec2(0f,-0.1f), false);
+        world = new World(new Vec2(0f,-0.0f), false);
         
         BodyDef bd = new BodyDef();
         bd.type = BodyType.DYNAMIC;
@@ -96,7 +98,7 @@ public class StartScreenState implements AppState {
         discBody.createFixture(fd);
         
         discBody.setUserData(buttonShape);
-        
+                
         initialized = true;
     }
 

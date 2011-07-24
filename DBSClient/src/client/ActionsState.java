@@ -23,6 +23,14 @@ public class ActionsState implements AppState {
         active = true;
     }
     
+    public void runAction(Action action) {
+        actions.add(action);
+    }
+    
+    public void stopAction(Action action) {
+        actions.remove(action);
+    }
+    
     @Override
     public void initialize(AppStateManager stateManager, Application app) {
         

@@ -14,16 +14,19 @@ import com.jme3.scene.Spatial;
 public class MoveToAction extends FiniteAction {
 
     private Spatial target;
-    private Vector3f position;
+    private Vector3f startPosition, endPosition;
     
     public MoveToAction(float duration, Spatial target, Vector3f position) {
         super(duration);
         this.target = target;
-        this.position = position;
+        this.endPosition = position;
+        this.startPosition = target.getLocalTranslation();
     }
     
     @Override
     public void update(float t) {
-        target.setLocalTranslation(target.getLocalTranslation().interpolate(position, t));
+        Vector3f pos = new Vector3f(startPosition);
+        pos.interpolate(endPosition, t);
+        target.setLocalTranslation(pos);
     }
 }

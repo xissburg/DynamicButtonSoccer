@@ -41,6 +41,10 @@ public class ClientApplication extends Application {
         stateManager.attach(startScreenState);
     }
     
+    public void runAction(Action action) {
+        actionsState.runAction(action);
+    }
+    
     public void start() {
         // set some default settings in-case
         // settings dialog is not shown
