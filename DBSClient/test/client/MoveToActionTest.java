@@ -44,6 +44,8 @@ public class MoveToActionTest {
      */
     @Test
     public void testUpdate() throws NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
+        System.out.println("MoveToAction.update");
+        
         float duration = 3f;
         Vector3f startLocation = new Vector3f(0f, 1f, 2f);
         Vector3f endLocation = new Vector3f(10f, 20f, 30f);
