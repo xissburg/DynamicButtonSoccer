@@ -14,19 +14,20 @@ import com.jme3.renderer.Camera;
 public class CameraMoveToAction extends FiniteAction {
 
     private Camera camera;
-    private Vector3f endLocation, startLocation;
+    private Vector3f endLocation, startLocation, currentLocation;
     
     public CameraMoveToAction(float duration, Camera camera, Vector3f location) {
         super(duration);
         this.camera = camera;
         this.endLocation = location;
         this.startLocation = new Vector3f(camera.getLocation());
+        this.currentLocation = new Vector3f(this.startLocation);
     }
     
     @Override
     public void update(float t) {
-        Vector3f location = new Vector3f(startLocation);
-        location.interpolate(endLocation, t);
-        camera.setLocation(location);
+        currentLocation.set(startLocation);
+        currentLocation.interpolate(endLocation, t);
+        camera.setLocation(currentLocation);
     }
 }
