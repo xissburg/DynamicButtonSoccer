@@ -9,7 +9,7 @@ import java.util.List;
  *
  * @author xissburg
  */
-class SequenceAction extends FiniteAction {
+public class SequenceAction extends FiniteAction {
 
     private List<FiniteAction> actions;
     private List<Float> durationRatios;
