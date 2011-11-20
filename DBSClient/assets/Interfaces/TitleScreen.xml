@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<nifty xmlns="http://nifty-gui.sourceforge.net/nifty.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://nifty-gui.sourceforge.net/nifty.xsd http://nifty-gui.sourceforge.net/nifty.xsd">
+    
+    <screen id="start">
+        <layer id="background" backgroundColor="#000f" childLayout="center">
+            <panel id="panel_center" height="25%" width="40%" align="center" childLayout="center" backgroundColor="#f008">
+                <text text="Dynamic Button Soccer" font="Interface/Fonts/Default.fnt" width="100%" height="100%" />
+            </panel>
+        </layer>
+    </screen>
+
+</nifty>
