@@ -1,5 +1,5 @@
 
-package client;
+package actions;
 
 /**
  *
@@ -8,8 +8,6 @@ package client;
 public interface Action {
     
     void step(float dt);
-    
-    void update(float t);
     
     boolean isFinished();
 }

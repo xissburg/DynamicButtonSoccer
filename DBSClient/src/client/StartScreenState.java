@@ -1,6 +1,8 @@
 
 package client;
 
+import actions.CameraMoveToAction;
+import actions.Action;
 import com.jme3.app.Application;
 import com.jme3.app.state.AppState;
 import com.jme3.app.state.AppStateManager;
@@ -16,6 +18,8 @@ import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Cylinder;
 import com.jme3.util.TangentBinormalGenerator;
+import java.util.ArrayList;
+import java.util.Collection;
 import org.jbox2d.collision.shapes.CircleShape;
 import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.Body;
@@ -25,80 +29,122 @@ import org.jbox2d.dynamics.FixtureDef;
 import org.jbox2d.dynamics.World;
 
 /**
- *
+ * AppState for the title screen. It has 3 dynamic discs/circles in it. They are
+ * physically simulated and can be dragged around by the user. They are attached
+ * to springs that keep them in place. 
+ * 
  * @author xissburg
  */
 public class StartScreenState implements AppState {
 
     private Node rootNode;
     private ClientApplication app;
-    private Geometry buttonShape;
+    private Collection<Geometry> shapes;
     private boolean initialized;
     private boolean active;
     
     private World world;
-    private Body discBody;
+    private Collection<Body> bodies;
 
     public StartScreenState(Node rootNode) {
         this.rootNode = rootNode;
         this.initialized = false;
         this.active = true;
+        this.shapes = new ArrayList<Geometry>();
+        this.bodies = new ArrayList<Body>();
     }
         
     @Override
     public void initialize(AppStateManager stateManager, Application app) {
-        //Attach stuff onto root
+        //app *must* be an instance of ClientApplication so that methods like runAction
+        //can be called on it
         this.app = (ClientApplication)app;
         
-        Material buttonMat = new Material(app.getAssetManager(), "Common/MatDefs/Light/Lighting.j3md");
+        //Setup physics
+        Vec2 gravity = new Vec2(0f, -0f);
+        world = new World(gravity, false);
+        
+        //Central disc
+        Material buttonMat = new Material(this.app.getAssetManager(), "Common/MatDefs/Light/Lighting.j3md");
         buttonMat.setFloat("Shininess", 64);
         buttonMat.setBoolean("UseMaterialColors", true);
         buttonMat.setColor("Diffuse", new ColorRGBA(0.8f, 0.8f, 1f, 1f));
         buttonMat.setColor("Ambient",  ColorRGBA.Black);
         buttonMat.setColor("Specular", ColorRGBA.LightGray);
         
-        //create button shape
-        Cylinder buttonCyl = new Cylinder(32, 16, 0.3f, 0.1f, true);
+        Cylinder buttonCyl = new Cylinder(32, 16, 0.8f, 0.1f, true);
+        TangentBinormalGenerator.generate(buttonCyl);
+        Geometry buttonShape = new Geometry("disc", buttonCyl);
+        buttonShape.setMaterial(buttonMat);
+        buttonShape.setLocalRotation(new Quaternion().fromAngleNormalAxis((float)Math.PI/2, Vector3f.UNIT_X));
+        buttonShape.setLocalTranslation(Vector3f.ZERO);
+        rootNode.attachChild(buttonShape);
+        shapes.add(buttonShape);
+        
+        //Central disc physics
+        BodyDef bd = new BodyDef();
+        bd.type = BodyType.DYNAMIC;
+        bd.position.set(new Vec2(0f,0f));
+        Body discBody = world.createBody(bd);
+        
+        CircleShape cs = new CircleShape();
+        cs.m_radius = buttonCyl.getRadius();
+        
+        FixtureDef fd = new FixtureDef();
+        fd.shape = cs;
+        fd.density = 3f;
+        fd.restitution = 0.5f;
+        
+        discBody.createFixture(fd);
+        
+        discBody.setUserData(buttonShape);
+        bodies.add(discBody);
+        
+        //Left disc
+        buttonCyl = new Cylinder(32, 16, 0.3f, 0.1f, true);
         TangentBinormalGenerator.generate(buttonCyl);
         buttonShape = new Geometry("disc", buttonCyl);
         buttonShape.setMaterial(buttonMat);
         buttonShape.setLocalRotation(new Quaternion().fromAngleNormalAxis((float)Math.PI/2, Vector3f.UNIT_X));
         buttonShape.setLocalTranslation(Vector3f.ZERO);
-
         rootNode.attachChild(buttonShape);
+        shapes.add(buttonShape);
         
+        //Left disc physics
+        bd = new BodyDef();
+        bd.type = BodyType.DYNAMIC;
+        bd.position.set(new Vec2(-0.9f,0.9f));
+        discBody = world.createBody(bd);
+        
+        cs = new CircleShape();
+        cs.m_radius = buttonCyl.getRadius();
+        
+        fd = new FixtureDef();
+        fd.shape = cs;
+        fd.density = 2f;
+        fd.restitution = 0.5f;
+        
+        discBody.createFixture(fd);
+        discBody.setUserData(buttonShape);
+        bodies.add(discBody);
+        
+        discBody.applyLinearImpulse(new Vec2(0f,-1f), discBody.getWorldCenter());
+        
+        //Light source
         PointLight pl = new PointLight();
         pl.setPosition(new Vector3f(2f, 10f, 2f));
         pl.setColor(ColorRGBA.White.clone());
         pl.setRadius(200f);
         rootNode.addLight(pl);
         
-        Camera camera = app.getCamera();
-        camera.setLocation(new Vector3f(0f, 4f, -1f));
+        //Setup camera
+        Camera camera = this.app.getCamera();
+        camera.setLocation(new Vector3f(0f, 5f, 0.1f));
         camera.lookAt(Vector3f.ZERO, Vector3f.UNIT_Y);
         
-        Action cameraMoveAction = new CameraMoveToAction(10f, camera, new Vector3f(0f, 5f, -1f));
+        Action cameraMoveAction = new CameraMoveToAction(3f, camera, new Vector3f(0f, 6f, 0.1f));
         this.app.runAction(cameraMoveAction);
-        
-        world = new World(new Vec2(0f,-0.0f), false);
-        
-        BodyDef bd = new BodyDef();
-        bd.type = BodyType.DYNAMIC;
-        bd.position.set(new Vec2(0f,0f));
-        discBody = world.createBody(bd);
-        
-        CircleShape cs = new CircleShape();
-        cs.m_radius = 0.3f;
-        
-        FixtureDef fd = new FixtureDef();
-        fd.shape = cs;
-        fd.density = 20f;
-        fd.restitution = 0.5f;
-        
-        discBody.createFixture(fd);
-        
-        discBody.setUserData(buttonShape);
-                
+            
         initialized = true;
     }
 
@@ -125,17 +171,21 @@ public class StartScreenState implements AppState {
 
     @Override
     public void stateDetached(AppStateManager stateManager) {
-        rootNode.detachChild(buttonShape);
-        buttonShape = null;
+        for (Geometry g: shapes) {
+            rootNode.detachChild(g);
+        }
+        shapes.clear();
     }
 
     @Override
     public void update(float tpf) {
         world.step(tpf, 10, 10);
         
-        Vec2 c = discBody.getWorldCenter();
-        Spatial spatial = (Spatial)discBody.getUserData();
-        spatial.setLocalTranslation(c.x, 0f, c.y);
+        for (Body b: bodies) {
+            Vec2 c = b.getWorldCenter();
+            Spatial spatial = (Spatial)b.getUserData();
+            spatial.setLocalTranslation(c.x, 0f, -c.y);
+        }        
     }
 
     @Override

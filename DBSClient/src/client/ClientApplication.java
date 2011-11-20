@@ -1,6 +1,8 @@
 
 package client;
 
+import actions.Action;
+import actions.ActionsState;
 import com.jme3.app.Application;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.scene.Node;

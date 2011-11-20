@@ -4,6 +4,7 @@
  */
 package client;
 
+import actions.MoveToAction;
 import java.lang.reflect.Field;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
